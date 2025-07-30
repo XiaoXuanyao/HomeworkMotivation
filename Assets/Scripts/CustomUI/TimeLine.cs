@@ -114,7 +114,7 @@ public class TimeLine : MonoBehaviour
         }
         ratio = 1f;
         timeLine = Instantiate(timeLine, transform);
-        timeLine.name = "TimeLine";
+        timeLine.name = "TimeLineInstance";
         data = new List<TimeLineNode>();
         dataObject = new List<GameObject>();
         if (useScrollRect)

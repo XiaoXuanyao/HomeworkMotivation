@@ -152,6 +152,7 @@ public class Clock : MonoBehaviour
             return;
         }
         clockObject = Instantiate(clockObject, transform);
+        clockObject.name = "ClockInstance";
         hoursCircleColor = RandomColor();
         minutesCircleColor = RandomColor();
         secondsCircleColor = RandomColor();
