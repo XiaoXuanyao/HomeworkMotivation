@@ -6,6 +6,10 @@ using UnityEngine.UI;
 
 
 
+/// <summary>
+/// 时钟组件，提供计时功能和可视化显示。
+/// 该组件可以在 Unity 编辑器中使用，支持开始、结束、重置计时
+/// </summary>
 [ExecuteInEditMode]
 public class Clock : MonoBehaviour
 {
@@ -21,7 +25,8 @@ public class Clock : MonoBehaviour
     public Color hoursPointerColor;
     public Color minutesPointerColor;
     public Color secondsPointerColor;
-    public Color backgroundColor;
+    public Color backgroundColor = Color.black;
+    public Color textColor = Color.white;
     public GameObject startButton;
     public GameObject stopButton;
 
@@ -35,6 +40,9 @@ public class Clock : MonoBehaviour
     private GameObject clockObject;
 
 
+    /// <summary>
+    /// 当组件参数发生改变时，更新并载入时钟颜色等设置。
+    /// </summary>
     private void OnValidate()
     {
         if (GetComponents<Clock>().Length > 1 && !isLoaded)
@@ -55,12 +63,20 @@ public class Clock : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 销毁时钟组件时，释放按钮事件监听器并销毁时钟对象。
+    /// </summary>
     private void OnDestroy()
     {
         ReleaseButtons();
         DestroyImmediate(clockObject, true);
     }
 
+    /// <summary>
+    /// 每帧更新时钟显示。
+    /// 如果正在计时，则计算当前时间与开始时间的差值。
+    /// 更新时钟的外圈、指针、文字等UI。
+    /// </summary>
     private void Update()
     {
         if (clockObject == null)
@@ -68,13 +84,15 @@ public class Clock : MonoBehaviour
 
         if (isTiming)
             endTime = System.DateTime.Now;
-        
+
+        // 计算时间差
         System.TimeSpan duration = endTime - startTime;
         hours = duration.Hours;
         minutes = duration.Minutes;
         seconds = duration.Seconds;
         milliseconds = duration.Milliseconds;
 
+        // 更新时钟外圈与指针
         Transform circles = clockObject.transform.Find("Content/Circles");
         Transform pointers = clockObject.transform.Find("Content/Pointers");
 
@@ -94,6 +112,7 @@ public class Clock : MonoBehaviour
             0, 0, -(seconds + milliseconds / 1000f) / 60f * 360f
         );
 
+        // 更新时钟文字显示
         string text = "";
         if (hours > 0)
             text += $"{hours:0} 时 ";
@@ -104,11 +123,21 @@ public class Clock : MonoBehaviour
         clockObject.transform.Find("Text").GetComponent<TextMeshProUGUI>().text = text;
     }
 
+    /// <summary>
+    /// 生成一个随机颜色。
+    /// 该颜色的 RGB 分量均在 [0, 1] 范围内，Alpha 分量为 1。
+    /// 用于随机化时钟的颜色设置。
+    /// </summary>
+    /// <returns></returns>
     public Color RandomColor()
     {
         return new Color(Random.value, Random.value, Random.value, 1f);
     }
 
+    /// <summary>
+    /// 初始化时钟对象及其相关设置。
+    /// 会为时钟随机颜色。
+    /// </summary>
     private void InitClock()
     {
         foreach (Transform obj in transform)
@@ -146,6 +175,11 @@ public class Clock : MonoBehaviour
         DestroyImmediate(this, true);
     }
 
+    /// <summary>
+    /// 更新时钟的颜色和其他参数。
+    /// 该方法会在 OnValidate 中调用。
+    /// 会调用 Update() 方法以更新时钟的显示。
+    /// </summary>
     private void UpdateArgs()
     {
         Transform circles = clockObject.transform.Find("Content/Circles");
@@ -154,14 +188,21 @@ public class Clock : MonoBehaviour
         circles.Find("Hour").GetComponent<Image>().color = hoursCircleColor;
         circles.Find("Minute").GetComponent<Image>().color = minutesCircleColor;
         circles.Find("Second").GetComponent<Image>().color = secondsCircleColor;
+        circles.Find("Hour/Background").GetComponent<Image>().color = backgroundColor;
+        circles.Find("Minute/Background").GetComponent<Image>().color = backgroundColor;
+        circles.Find("Second/Background").GetComponent<Image>().color = backgroundColor;
         circles.Find("Core").GetComponent<Image>().color = coreColor;
         pointers.Find("Hour").GetComponent<Image>().color = hoursPointerColor;
         pointers.Find("Minute").GetComponent<Image>().color = minutesPointerColor;
         pointers.Find("Second").GetComponent<Image>().color = secondsPointerColor;
+        clockObject.transform.Find("Text").GetComponent<TextMeshProUGUI>().color = textColor;
 
         Update();
     }
 
+    /// <summary>
+    /// 为时钟绑定按钮事件。
+    /// </summary>
     private void BindButtons()
     {
         ReleaseButtons();
@@ -179,6 +220,9 @@ public class Clock : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 释放时钟绑定的按钮事件。
+    /// </summary>
     private void ReleaseButtons()
     {
         if (startButton != null)
@@ -195,7 +239,10 @@ public class Clock : MonoBehaviour
         }
     }
 
-
+    /// <summary>
+    /// 开始计时。
+    /// 如果已经在计时，则不会重复开始。
+    /// </summary>
     public void StartTiming()
     {
         if (isTiming)
@@ -204,6 +251,10 @@ public class Clock : MonoBehaviour
         isTiming = true;
     }
 
+    /// <summary>
+    /// 结束计时。
+    /// 如果当前没有在计时，则不会执行任何操作。
+    /// </summary>
     public void StopTiming()
     {
         if (!isTiming)
@@ -212,6 +263,9 @@ public class Clock : MonoBehaviour
         isTiming = false;
     }
 
+    /// <summary>
+    /// 重置计时。
+    /// </summary>
     public void ResetTiming()
     {
         startTime = System.DateTime.Now;
